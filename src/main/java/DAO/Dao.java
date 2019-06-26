@@ -3,12 +3,21 @@ package DAO;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.awt.print.Book;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.sql.ResultSet;    
-import java.sql.SQLException;    
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;    
 import org.springframework.jdbc.core.BeanPropertyRowMapper;    
 import org.springframework.jdbc.core.JdbcTemplate;    
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.opencsv.CSVReader;
 
 import Beans.Authors;
 import Beans.Books;
@@ -179,6 +188,43 @@ public class Dao {
 		return template.query(sql, new PairMapper());
 	}
 	    
+//CSV Reader
+	public ArrayList<String[]> readAll(MultipartFile file) throws Exception {
+//	    CSVReader csvReader = new CSVReader(reader);
+//	    List<String[]> list = new ArrayList();
+//	    list = csvReader.readAll();
+//	    reader.close();
+//	    csvReader.close();
+//	    return list;
+		BufferedReader br;
+		ArrayList<String[]> result = new ArrayList<String[]>();
+		try {
+
+		     String line;
+		     InputStream is = file.getInputStream();
+		     br = new BufferedReader(new InputStreamReader(is));
+		     while ((line = br.readLine()) != null) {
+		          result.add(line.split(","));
+//		          System.out.println(line.split(",")[1]);
+		     }
+
+		  } catch (IOException e) {
+		    System.err.println(e.getMessage());       
+		  }
+		return result;
+	}
 	    
+	public List<String[]> oneByOne(Reader reader) throws Exception {
+	    List<String[]> list = new ArrayList();
+	    CSVReader csvReader = new CSVReader(reader);
+	    String[] line;
+	    while ((line = csvReader.readNext()) != null) {
+	        list.add(line);
+	        
+	    }
+	    reader.close();
+	    csvReader.close();
+	    return list;
+	}
 	    
 }

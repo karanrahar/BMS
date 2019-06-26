@@ -33,5 +33,6 @@
     
 	<bean id="dao" class="DAO.Dao">    
 		<property name="template" ref="jt"></property>    
-	</bean>       
+	</bean>      
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>   
 </beans>  

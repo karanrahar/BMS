@@ -1,14 +1,24 @@
 package BMSController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.fileupload.MultipartStream;
 import org.apache.taglibs.standard.lang.jstl.test.beans.PublicBean1;
 import org.springframework.beans.factory.annotation.Autowired;    
 import org.springframework.stereotype.Controller;  
@@ -18,11 +28,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;    
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import Beans.Users;    
 import Beans.Authors;
 import Beans.Books;
 import DAO.Dao;
+
+import com.opencsv.CSVReader;
+
 
 import org.springframework.stereotype.Controller;  
 import org.springframework.ui.Model;  
@@ -154,5 +168,33 @@ public class AdminController {
 //		m.addAttribute("message", "");
 		m.addAttribute("page", "/vau");
 		return "errorpage";
+	}
+	
+	@RequestMapping("/redirectToAddcsv")
+	public String redirectToAddcsv(Model m)
+	{
+		return "Addcsv";
+	}
+//	public String oneByOneExample() throws Exception {
+//	    Reader reader = Files.newBufferedReader(Paths.get(ClassLoader.getSystemResource("csv/twoColumn.csv").toURI()));
+//	    return dao.oneByOne(reader).toString();
+//	}
+	
+	@RequestMapping(value = "/Addcsv", method = RequestMethod.POST)
+	public String readAllExample(@RequestParam("file") MultipartFile file, Model m,HttpSession session) throws Exception {
+//		String path=session.getServletContext().getRealPath("/"); 
+//		System.out.println(path + file.getOriginalFilename());
+//	    Reader reader = Files.newBufferedReader(Paths.get(ClassLoader.getSystemResource("books.csv").toURI()));
+//	    System.out.println(dao.readAll(reader).toString());
+		ArrayList<String[]> res = dao.readAll(file);
+		for(int i=0; i<res.size(); i++){
+			String [] str=  res.get(i);
+//			for(String s: str){
+//				System.out.print(s+" ");
+//			}
+			
+			System.out.println(str[1]+" "+ str[7]+" "+ str[9]);
+		}
+	    return "SucessAlert";
 	}
 }

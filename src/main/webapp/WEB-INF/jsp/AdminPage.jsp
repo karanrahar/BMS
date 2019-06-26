@@ -57,7 +57,9 @@ h2{
 		<input type="submit" class="button1" formaction = "vaa" value = "View all Authors"><br>
 		<center><input type="submit" class="button1" formaction = "redirectToAddAuthor" value = "Add Author">
 		<input type="submit" class="button1" formaction = "redirectToAddBook" value = "Add Book">
-		<input type="submit" class="button1" formaction = "redirectToRegister" value = "Add Admin">
+		<input type="submit" class="button1" formaction = "redirectToRegister" value = "Add Admin"><br>
+		<input type="submit" class="button1" formaction = "redirectToAddcsv" value = "Upload CSV">
+		
 	</form>
 </body>  
 </html> 
