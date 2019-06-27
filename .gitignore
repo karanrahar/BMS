@@ -1,2 +1,3 @@
 /build/
 *.MF
+src/main/webapp/WEB-INF/spring-servlet.xml
