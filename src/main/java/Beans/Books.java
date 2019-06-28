@@ -7,6 +7,12 @@ public class Books {
 		return BookName;
 	}
 	public void setBookName(String bookName) {
+		for (int i = 0; i < bookName.length(); i++) {
+			if (bookName.charAt(i)=='\'') {
+				bookName=bookName.substring(0,i)+bookName.substring(i+1);
+				i--;
+			}
+		}
 		BookName = bookName;
 	}
 	public int getBookID() {

@@ -4,6 +4,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +19,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.fileupload.MultipartStream;
@@ -173,28 +177,50 @@ public class AdminController {
 	@RequestMapping("/redirectToAddcsv")
 	public String redirectToAddcsv(Model m)
 	{
-		return "Addcsv";
+		return "UploadFile";
 	}
 //	public String oneByOneExample() throws Exception {
 //	    Reader reader = Files.newBufferedReader(Paths.get(ClassLoader.getSystemResource("csv/twoColumn.csv").toURI()));
 //	    return dao.oneByOne(reader).toString();
 //	}
 	
-	@RequestMapping(value = "/Addcsv", method = RequestMethod.POST)
-	public String readAllExample(@RequestParam("file") MultipartFile file, Model m,HttpSession session) throws Exception {
-//		String path=session.getServletContext().getRealPath("/"); 
+	@RequestMapping(value = "/UploadFile", method = RequestMethod.POST)
+	public String UploadFile(@RequestParam("file") MultipartFile file, Model m,HttpSession session,HttpServletRequest req) throws Exception {
+//		String path=session.getServletContext().getRealPath("/");
+//		String filepath = path + file.getOriginalFilename();
+		
 //		System.out.println(path + file.getOriginalFilename());
 //	    Reader reader = Files.newBufferedReader(Paths.get(ClassLoader.getSystemResource("books.csv").toURI()));
 //	    System.out.println(dao.readAll(reader).toString());
-		ArrayList<String[]> res = dao.readAll(file);
-		for(int i=0; i<res.size(); i++){
-			String [] str=  res.get(i);
-//			for(String s: str){
-//				System.out.print(s+" ");
-//			}
+//		ArrayList<String[]> res = dao.readAll(file);
+//		for(int i=0; i<res.size(); i++){
+//			String [] str=  res.get(i);
+////			for(String s: str){
+////				System.out.print(s+" ");
+////			}
 			
-			System.out.println(str[1]+" "+ str[7]+" "+ str[9]);
-		}
-	    return "SucessAlert";
+////			System.out.println(str[1]+" "+ str[7]+" "+ str[9]);
+//		}
+		File temp_file = new File(file.getOriginalFilename());
+		file.transferTo(temp_file);
+		ArrayList<String> temp=dao.getFeilds(temp_file);
+		m.addAttribute("l",temp);
+		req.getSession().setAttribute("file", temp_file);
+		System.out.println(temp);
+		
+	    return "Addcsv";
 	}
+	
+	@RequestMapping("/addCSV")
+	public String addCSV(@RequestParam("BookName") int bname,@RequestParam("Year") int byear,@RequestParam("BookCost") int bcost,@RequestParam("Aname") int aname, HttpServletRequest req) throws FileNotFoundException, IOException
+	{
+		System.out.println(bname+" "+byear+" "+bcost+" "+aname);
+//		File file=m.getClass();
+		File file=(File)req.getSession().getAttribute("file");
+//		dao.readcsv(file);
+		dao.addcsv(file, bname, byear, bcost, aname);
+		return "SucessAlert";
+	}
+	
+	
 }

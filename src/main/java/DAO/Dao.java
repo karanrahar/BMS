@@ -4,6 +4,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.awt.print.Book;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,6 +14,7 @@ import java.io.Reader;
 import java.sql.ResultSet;    
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;    
 import org.springframework.jdbc.core.BeanPropertyRowMapper;    
 import org.springframework.jdbc.core.JdbcTemplate;    
@@ -162,7 +166,7 @@ public class Dao {
 	    return template.update(sql);    
 	}
 	
-	public Authors getAuthorDetails(String name){    
+	public Authors getAuthorDetails(String name) throws Exception{    
 	    String sql="select * from BMSAuthors where AuthorName=?";    
 	    return template.queryForObject(sql, new Object[]{name},new BeanPropertyRowMapper<Authors>(Authors.class));    
 	} 
@@ -213,18 +217,86 @@ public class Dao {
 		  }
 		return result;
 	}
-	    
-	public List<String[]> oneByOne(Reader reader) throws Exception {
-	    List<String[]> list = new ArrayList();
-	    CSVReader csvReader = new CSVReader(reader);
-	    String[] line;
-	    while ((line = csvReader.readNext()) != null) {
-	        list.add(line);
-	        
-	    }
-	    reader.close();
-	    csvReader.close();
-	    return list;
+	
+	public String addcsv(File file,int bname,int byear,int bprice,int aname) throws FileNotFoundException, IOException{
+	
+		try (CSVReader csvReader = new CSVReader(new FileReader(file));) {
+		    String[] values = null;
+		    try {
+		    	csvReader.readNext();
+		    	int num=0;
+				while ((values = csvReader.readNext()) != null) {
+					Books b = new Books();
+					b.setBookName(values[bname].isEmpty() ? values[bname+1] : values[bname].split(",")[0]);
+					b.setYear(values[byear].isEmpty() ? 0 : (int)Double.parseDouble(values[byear]));
+					b.setPrice(Integer.parseInt(values[bprice]));
+					String Authorname=values[aname].split(",")[0];
+					for (int i = 0; i < Authorname.length(); i++) {
+						if (Authorname.charAt(i)=='\'') {
+							Authorname=Authorname.substring(0,i)+Authorname.substring(i+1);
+							i--;
+						}
+					}
+					Authors a=new Authors();
+					try{
+						
+						a=getAuthorDetails(Authorname);
+//						System.out.println(a.getAuthorID());
+					}catch(Exception e){
+						System.out.println("Author not found. Adding Author "+ Authorname);
+						a.setAuthorName(Authorname);
+						saveAuthor(a);
+					}
+					b.setAuthorID(getAuthorDetails(Authorname).getAuthorID());
+					saveBook(b);
+					num++;
+					System.out.println("Book "+b.getBookName()+" Added");
+				}
+				System.out.println(num + " Books added");
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return "true";
 	}
+	public String readcsv(File file) throws FileNotFoundException, IOException{
+		List<List<String>> records = new ArrayList<List<String>>();
+		try (CSVReader csvReader = new CSVReader(new FileReader(file));) {
+		    String[] values = null;
+		    try {
+				while ((values = csvReader.readNext()) != null) {
+				    records.add(Arrays.asList(values));
+				    System.out.println(records.get(records.size() - 1).get(1).split(",")[0]);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return "true";
+	}
+	public ArrayList<String> getFeilds(File file) throws FileNotFoundException, IOException{
+		List<List<String>> records = new ArrayList<List<String>>();
+		ArrayList<String> result = new ArrayList<String>();
+		try (CSVReader csvReader = new CSVReader(new FileReader(file));) {
+		    String[] value = null;
+		   
+		    	value = csvReader.readNext();
+				result.addAll(Arrays.asList(value));
+//				while ((values = csvReader.readNext()) != null) {
+//				    records.add(Arrays.asList(values));
+//				    System.out.println(records.get(records.size() - 1).get(1).split(",")[0]);
+
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		return result;
+	}
+	    
+	
 	    
 }
